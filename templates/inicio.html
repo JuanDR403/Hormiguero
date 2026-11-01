@@ -9,5 +9,14 @@
 <body>
   <h1>Hormiguero</h1>
   <p>Gestor de gastos personales con metas de ahorro.</p>
+  {% if user.is_authenticated %}
+    <p>Hola, {{ user.first_name }}.</p>
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit">Cerrar sesión</button>
+    </form>
+  {% else %}
+    <p><a href="{% url 'login' %}">Iniciar sesión</a> · <a href="{% url 'registro' %}">Crear cuenta</a></p>
+  {% endif %}
 </body>
 </html>

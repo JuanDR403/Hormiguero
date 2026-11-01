@@ -1,0 +1,60 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}{% endblock %} · Hormiga Ahorradora</title>
+  <link rel="stylesheet" href="{% static 'autenticacion.css' %}">
+  <script src="{% static 'hormigas.js' %}" defer></script>
+</head>
+<body>
+  <svg class="escena" id="escena-hormigas" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <symbol id="hormiga" viewBox="0 0 48 32">
+        <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M18 14 L12 6 L7 5 M24 14 L24 5 L19 2 M29 14 L35 6 L40 5" />
+          <path d="M18 18 L12 26 L7 27 M24 18 L24 27 L19 30 M29 18 L35 26 L40 27" />
+          <path d="M38 12 Q43 7 47 9 M38 20 Q43 25 47 23" />
+        </g>
+        <g fill="currentColor">
+          <ellipse cx="12" cy="16" rx="11" ry="7.5" />
+          <ellipse cx="25" cy="16" rx="6" ry="4.5" />
+          <circle cx="36" cy="16" r="6" />
+        </g>
+      </symbol>
+      <symbol id="moneda" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10.5" fill="#D97706" stroke="#451A03" stroke-width="1.2" />
+        <circle cx="12" cy="12" r="7.5" fill="none" stroke="#FAF8F5" stroke-width="1" />
+        <path d="M15 8.8 C13.8 7.6 9.2 7.6 9.2 10 C9.2 12.6 15 11.2 15 14 C15 16.4 10.2 16.4 9 15.2 M12 6.4 V17.6" fill="none" stroke="#FAF8F5" stroke-width="1.3" stroke-linecap="round" />
+      </symbol>
+    </defs>
+    <path class="ruta" d="M-40 150 C 180 40, 340 300, 560 180 S 900 40, 1120 150 S 1380 260, 1500 90" />
+    <path class="ruta" d="M-40 560 C 120 430, 300 660, 500 520 S 660 300, 460 330 S 160 420, 240 250 S 420 40, 620 -40" />
+    <path class="ruta" d="M-40 800 C 220 880, 380 700, 640 790 S 980 900, 1200 760 S 1400 620, 1500 700" />
+    <path class="ruta" d="M1500 400 C 1340 320, 1220 500, 1040 430 S 820 540, 700 660 S 520 860, 420 950" />
+    <g id="capa-monedas"></g>
+    <g id="capa-hormigas"></g>
+  </svg>
+
+  <main class="contenido">
+    <section class="marca">
+      <div class="logo">
+        <svg class="logo-hormiga" viewBox="0 0 48 32" aria-hidden="true"><use href="#hormiga" /></svg>
+        <span class="logo-nombre">Hormiga <strong>Ahorradora</strong></span>
+      </div>
+      <div class="logo-rastro" aria-hidden="true"></div>
+      <p class="lema">Pequeños gastos, grandes ahorros.</p>
+    </section>
+
+    <section class="tarjeta">
+      {% block formulario %}{% endblock %}
+    </section>
+  </main>
+
+  <aside class="panel" id="panel-simulacion" aria-label="Simulación de hormigas" hidden>
+    <button type="button" id="alternar-simulacion">Pausar hormigas</button>
+  </aside>
+  <div class="ficha" id="ficha-hormiga" hidden></div>
+</body>
+</html>
