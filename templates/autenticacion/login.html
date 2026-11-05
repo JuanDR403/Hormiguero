@@ -1,0 +1,25 @@
+{% extends "autenticacion/base.html" %}
+
+{% block titulo %}Iniciar sesión{% endblock %}
+
+{% block formulario %}
+  <h1>Iniciar sesión</h1>
+  <p class="subtitulo">Qué bueno verte de nuevo.</p>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    {% for error in form.non_field_errors %}
+      <p class="error error-general" role="alert">{{ error }}</p>
+    {% endfor %}
+    {% include "autenticacion/_campo.html" with campo=form.username %}
+    {% include "autenticacion/_campo.html" with campo=form.password %}
+    <button class="boton" type="submit">Iniciar sesión</button>
+  </form>
+
+  <details class="recuperar">
+    <summary>¿Olvidaste tu contraseña?</summary>
+    <p>La recuperación de contraseña estará disponible próximamente.</p>
+  </details>
+  <p class="alterno">¿No tienes cuenta? <a href="{% url 'registro' %}">Regístrate</a></p>
+{% endblock %}

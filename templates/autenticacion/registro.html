@@ -1,0 +1,19 @@
+{% extends "autenticacion/base.html" %}
+
+{% block titulo %}Crear cuenta{% endblock %}
+
+{% block formulario %}
+  <h1>Crear cuenta</h1>
+  <p class="subtitulo">Empieza a cuidar tu dinero, gasto a gasto.</p>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% include "autenticacion/_campo.html" with campo=formulario.nombre_completo %}
+    {% include "autenticacion/_campo.html" with campo=formulario.correo %}
+    {% include "autenticacion/_campo.html" with campo=formulario.contrasena %}
+    {% include "autenticacion/_campo.html" with campo=formulario.confirmar_contrasena %}
+    <button class="boton" type="submit">Registrarme</button>
+  </form>
+
+  <p class="alterno">¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a></p>
+{% endblock %}
