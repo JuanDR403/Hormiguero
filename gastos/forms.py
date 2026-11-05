@@ -3,7 +3,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
+from .models import Gasto
+from .reglas.gastos import validar_gasto
 from .reglas.usuarios import normalizar_correo
 
 Usuario = get_user_model()
@@ -86,3 +89,32 @@ class FormularioRegistro(forms.Form):
             password=self.cleaned_data["contrasena"],
             first_name=self.cleaned_data["nombre_completo"],
         )
+
+
+class FormularioGasto(forms.ModelForm):
+    class Meta:
+        model = Gasto
+        fields = ["monto", "fecha", "categoria", "descripcion"]
+        labels = {
+            "monto": "Monto",
+            "fecha": "Fecha",
+            "categoria": "Categoría",
+            "descripcion": "Descripción",
+        }
+        widgets = {"fecha": forms.DateInput(attrs={"type": "date"})}
+        error_messages = {
+            "monto": {"max_decimal_places": "El monto debe ser en pesos enteros, sin centavos."},
+        }
+
+    def __init__(self, *args, hoy=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.hoy = hoy or timezone.localdate()
+
+    def clean(self):
+        datos = super().clean()
+        errores = validar_gasto(datos.get("monto"), datos.get("fecha"), self.hoy)
+        for campo, mensaje in errores.items():
+            # Si el campo ya falló (vacío, con centavos...), no se repite el error.
+            if campo not in self.errors:
+                self.add_error(campo, mensaje)
+        return datos
