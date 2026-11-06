@@ -1,22 +1,14 @@
-{% load static %}
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <title>Hormiguero</title>
-  <link rel="stylesheet" href="{% static 'estilos.css' %}">
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block titulo %}Inicio{% endblock %}
+
+{% block contenido %}
   <h1>Hormiguero</h1>
   <p>Gestor de gastos personales con metas de ahorro.</p>
   {% if user.is_authenticated %}
     <p>Hola, {{ user.first_name }}.</p>
-    <form method="post" action="{% url 'logout' %}">
-      {% csrf_token %}
-      <button type="submit">Cerrar sesión</button>
-    </form>
+    <p><a href="{% url 'lista_gastos' %}">Ver mis gastos</a></p>
   {% else %}
     <p><a href="{% url 'login' %}">Iniciar sesión</a> · <a href="{% url 'registro' %}">Crear cuenta</a></p>
   {% endif %}
-</body>
-</html>
+{% endblock %}
