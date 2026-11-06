@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block titulo %}Mis gastos{% endblock %}
+
+{% block contenido %}
+  <h1>Mis gastos</h1>
+
+  <section class="bloque" aria-labelledby="titulo-registrar">
+    <h2 id="titulo-registrar">Registrar gasto</h2>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% for error in formulario.non_field_errors %}
+        <p class="error" role="alert">{{ error }}</p>
+      {% endfor %}
+      {% include "autenticacion/_campo.html" with campo=formulario.monto %}
+      {% include "autenticacion/_campo.html" with campo=formulario.fecha %}
+      {% include "autenticacion/_campo.html" with campo=formulario.categoria %}
+      {% include "autenticacion/_campo.html" with campo=formulario.descripcion %}
+      <button type="submit">Guardar gasto</button>
+    </form>
+  </section>
+
+  <section class="bloque" aria-labelledby="titulo-lista">
+    <h2 id="titulo-lista">Gastos registrados</h2>
+    {% if gastos %}
+      <div class="tabla-desplazable">
+        <table>
+          <caption>Tus gastos, del más reciente al más antiguo. Montos en pesos colombianos.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Fecha</th>
+              <th scope="col">Descripción</th>
+              <th scope="col">Categoría</th>
+              <th scope="col" class="numero">Monto</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for gasto in gastos %}
+              <tr>
+                <td><time datetime="{{ gasto.fecha|date:'Y-m-d' }}">{{ gasto.fecha|date:"j M Y" }}</time></td>
+                <td>{{ gasto.descripcion|default:"Sin descripción" }}</td>
+                <td>{{ gasto.get_categoria_display }}</td>
+                <td class="numero">${{ gasto.monto|floatformat:"0g" }}</td>
+                <td>
+                  <form method="post" action="{% url 'eliminar_gasto' gasto.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" aria-label="Eliminar gasto {{ gasto.descripcion|default:gasto.get_categoria_display }} del {{ gasto.fecha|date:'j M Y' }}">Eliminar</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p>Aún no tienes gastos registrados.</p>
+    {% endif %}
+  </section>
+{% endblock %}

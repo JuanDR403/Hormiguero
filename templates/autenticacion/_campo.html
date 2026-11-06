@@ -1,7 +1,12 @@
 <div class="campo">
   <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
   {{ campo }}
-  {% for error in campo.errors %}
-    <p class="error">{{ error }}</p>
-  {% endfor %}
+  {% if campo.errors %}
+    {# Django enlaza el campo a este id con aria-describedby. #}
+    <div id="{{ campo.auto_id }}_error">
+      {% for error in campo.errors %}
+        <p class="error">{{ error }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
 </div>
