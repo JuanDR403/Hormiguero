@@ -30,9 +30,9 @@ Al agregar una dependencia: `pip freeze > requirements.txt`.
 
 ## Estado y pantallas previstas
 
-Existen el esqueleto, la autenticación (inicio de sesión, registro y cierre de sesión con `django.contrib.auth`) y la página de inicio, que muestra el saludo si hay sesión. Existe el modelo `Gasto` con su validación (`gastos/reglas/gastos.py`), todavía sin pantallas. Se construye en este orden:
+Existen el esqueleto, la autenticación (inicio de sesión, registro y cierre de sesión con `django.contrib.auth`) y la página de inicio, que muestra el saludo si hay sesión. Existe el modelo `Gasto` con su validación (`gastos/reglas/gastos.py`). Las pantallas del dominio y la de inicio heredan de `templates/base.html` (viewport, `<main>`, encabezado con navegación y mensajes). Se construye en este orden:
 
-1. **Gastos** (`/gastos/`): lista, formulario para crear y eliminar.
+1. **Gastos** (`/gastos/`): lista, formulario para crear y eliminar. *Hecho* (`templates/gastos/lista.html`).
 2. **Gasto hormiga** (`/hormiga/`): compras pequeñas repetidas detectadas.
 3. **Metas de ahorro** (`/metas/`): lista, formulario y cuota mensual calculada.
 4. **Resumen**: total del mes, total por categoría y aviso de gasto hormiga. Reemplazará la página de inicio.
