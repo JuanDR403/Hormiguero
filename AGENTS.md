@@ -30,7 +30,7 @@ Al agregar una dependencia: `pip freeze > requirements.txt`.
 
 ## Estado y pantallas previstas
 
-Existen el esqueleto, la autenticación (inicio de sesión, registro y cierre de sesión con `django.contrib.auth`) y la página de inicio, que muestra el saludo si hay sesión. Aún no hay modelos de dominio. Se construye en este orden:
+Existen el esqueleto, la autenticación (inicio de sesión, registro y cierre de sesión con `django.contrib.auth`) y la página de inicio, que muestra el saludo si hay sesión. Existe el modelo `Gasto` con su validación (`gastos/reglas/gastos.py`), todavía sin pantallas. Se construye en este orden:
 
 1. **Gastos** (`/gastos/`): lista, formulario para crear y eliminar.
 2. **Gasto hormiga** (`/hormiga/`): compras pequeñas repetidas detectadas.
@@ -42,6 +42,7 @@ Decisiones de alcance: lista y formulario en la misma página; sin pantalla de e
 ## Reglas de negocio (backend)
 
 - Un gasto requiere monto mayor que cero y fecha no futura.
+- Los montos son pesos colombianos enteros (sin centavos).
 - **Gasto hormiga:** compras bajo un umbral configurable que se repiten N veces en 30 días.
 - **Cuota de ahorro:** (precio − ahorrado) ÷ meses restantes, redondeada hacia arriba.
 - Cada gasto y cada meta pertenece a un usuario. Un usuario solo ve y modifica los suyos, y las vistas del dominio exigen sesión iniciada.
