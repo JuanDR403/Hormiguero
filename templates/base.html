@@ -1,0 +1,36 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}{% endblock %} · Hormiguero</title>
+  <link rel="stylesheet" href="{% static 'estilos.css' %}">
+</head>
+<body>
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  <header class="encabezado">
+    <a class="marca" href="{% url 'inicio' %}" translate="no">Hormiguero</a>
+    {% if user.is_authenticated %}
+      <nav aria-label="Principal">
+        <a href="{% url 'lista_gastos' %}">Mis gastos</a>
+      </nav>
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Cerrar sesión</button>
+      </form>
+    {% endif %}
+  </header>
+
+  <main id="contenido">
+    {% if messages %}
+      <div class="mensajes" role="status">
+        {% for mensaje in messages %}
+          <p>{{ mensaje }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% block contenido %}{% endblock %}
+  </main>
+</body>
+</html>
