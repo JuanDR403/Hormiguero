@@ -55,6 +55,9 @@ Respondidas por el desarrollador el 2026-11-14:
 - Ventana: `hoy − 30` a `hoy` (31 días, ambos incluidos).
 - Valores por defecto: umbral 10.000, N 3.
 
+Respondida por el desarrollador el 2026-11-14, después de la revisión:
+- La entrada se supone válida: `n ≥ 1` (llega de `settings.py`) y montos sin centavos (los impide el modelo con `decimal_places=0`). La regla no los valida. Con `n ≤ 0` devuelve todos los grupos con al menos una compra, y un monto con centavos se recorta con `int()`.
+
 Propuestas por el coordinador, pendientes de aprobación junto con la spec:
 - La descripción se normaliza (recorte, espacios internos colapsados, minúsculas) y la vacía forma grupo propio.
 - Los gastos con fecha futura se excluyen.

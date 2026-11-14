@@ -14,6 +14,10 @@
   - `gastos/tests/test_regla_hormiga.py`
 - Modificados:
   - `config/settings.py` (dos constantes)
+- Cambios del arnés en esta rama (fuera del alcance original, justificados; decisión del desarrollador del 2026-11-14):
+  - `1e0bb86 fix: el hook de permisos solo juzga al agente al que pertenece`: `.claude/agents/*.md`, `.claude/hooks/limitar_agente.py`, `README.md`. Desbloqueó T1: el hook del coordinador rechazaba las llamadas de los subagentes.
+  - `2f2fd3c fix: el hook rechaza comillas escapadas y agentes sin perfil`: `.claude/hooks/limitar_agente.py`, `README.md`, `gastos/tests/test_hook_permisos.py` (17 pruebas). Corrige los hallazgos 1 y 2 de la revisión.
+  - Los dos commits son del desarrollador, no de los subagentes.
 - No se tocan: `gastos/models.py`, `gastos/views.py`, `gastos/urls.py`, `gastos/forms.py`, migraciones, `templates/`, `static/`, `gastos/tests/test_arquitectura.py`.
 
 ## Pruebas
@@ -36,6 +40,10 @@ Archivo `gastos/tests/test_regla_hormiga.py`. Reglas con `SimpleTestCase` y `hoy
 | `test_un_gasto_sobre_el_umbral_no_se_suma_al_grupo` | CA4, Definiciones | 3 × 4000 + 1 × 10001 → cantidad 3, total 12000 |
 | `test_misma_descripcion_en_otra_categoria_es_otro_grupo` | CA8 | dos categorías no se suman |
 | `test_gastos_sin_descripcion_forman_grupo` | CA9 | descripción `""` |
+| `test_descripcion_none_se_trata_como_vacia` | CA9 (revisión, hallazgo 4) | tres `None` → un grupo `""` |
+| `test_descripcion_none_y_vacia_forman_un_solo_grupo` | CA9 (revisión, hallazgo 4) | `None` y `""` → un grupo `""` |
+| `test_espacios_en_blanco_de_cualquier_tipo_se_colapsan` | Definiciones (revisión, hallazgo 5) | tabulador y salto de línea → `tinto grande` |
+| `test_misma_descripcion_en_dos_categorias_forma_dos_grupos` | CA8 (revisión, hallazgo 6) | 3 + 3 → dos grupos |
 | `test_grupos_ordenados_por_cantidad_y_total` | CA10 | orden del resultado |
 | `test_empate_se_resuelve_por_categoria_y_descripcion` | Resultado (orden) | empate en cantidad y total → categoría y descripción ascendentes |
 | `test_sin_gastos_devuelve_lista_vacia` | CA11 | `[]` |
