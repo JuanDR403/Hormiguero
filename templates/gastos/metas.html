@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block titulo %}Metas de ahorro{% endblock %}
+
+{% block contenido %}
+  <h1>Metas de ahorro</h1>
+
+  <section class="bloque" aria-labelledby="titulo-nueva">
+    <h2 id="titulo-nueva">Nueva meta</h2>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% for error in formulario.non_field_errors %}
+        <p class="error" role="alert">{{ error }}</p>
+      {% endfor %}
+      {% include "autenticacion/_campo.html" with campo=formulario.nombre %}
+      {% include "autenticacion/_campo.html" with campo=formulario.precio %}
+      {% include "autenticacion/_campo.html" with campo=formulario.ahorrado %}
+      {% include "autenticacion/_campo.html" with campo=formulario.fecha_limite %}
+      <button type="submit">Guardar meta</button>
+    </form>
+  </section>
+
+  <section class="bloque" aria-labelledby="titulo-lista">
+    <h2 id="titulo-lista">Mis metas</h2>
+    {% if metas %}
+      <div class="tabla-desplazable">
+        <table>
+          <caption>Tus metas de ahorro y la cuota mensual para alcanzarlas. Montos en pesos colombianos.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col" class="numero">Precio</th>
+              <th scope="col" class="numero">Ahorrado</th>
+              <th scope="col" class="numero">Falta</th>
+              <th scope="col">Fecha límite</th>
+              <th scope="col" class="numero">Meses restantes</th>
+              <th scope="col" class="numero">Cuota mensual</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for meta in metas %}
+              <tr>
+                <td>{{ meta.nombre }}</td>
+                <td class="numero">${{ meta.precio|floatformat:"0g" }}</td>
+                <td class="numero">${{ meta.ahorrado|floatformat:"0g" }}</td>
+                <td class="numero">${{ meta.falta|floatformat:"0g" }}</td>
+                <td><time datetime="{{ meta.fecha_limite|date:'Y-m-d' }}">{{ meta.fecha_limite|date:"j M Y" }}</time></td>
+                <td class="numero">{{ meta.meses }}</td>
+                <td class="numero">${{ meta.cuota|floatformat:"0g" }}</td>
+                <td><span class="estado estado-{{ meta.estado }}">{{ meta.estado_nombre }}</span></td>
+                <td>
+                  <form method="post" action="{% url 'eliminar_meta' meta.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" aria-label="Eliminar meta {{ meta.nombre }}">Eliminar</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p>Aún no tienes metas de ahorro.</p>
+    {% endif %}
+  </section>
+{% endblock %}
