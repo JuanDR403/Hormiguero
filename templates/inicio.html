@@ -1,14 +1,50 @@
 {% extends "base.html" %}
 
-{% block titulo %}Inicio{% endblock %}
+{% block titulo %}{% if user.is_authenticated %}Resumen{% else %}Inicio{% endif %}{% endblock %}
 
 {% block contenido %}
-  <h1>Hormiguero</h1>
-  <p>Gestor de gastos personales con metas de ahorro.</p>
   {% if user.is_authenticated %}
+    <h1>Resumen</h1>
     <p>Hola, {{ user.first_name }}.</p>
-    <p><a href="{% url 'lista_gastos' %}">Ver mis gastos</a></p>
+    {% if cantidad_hormiga %}
+      <p class="aviso-hormiga">Detectamos {{ cantidad_hormiga }} gasto{{ cantidad_hormiga|pluralize }} hormiga en los últimos {{ dias }} días.
+        <a href="{% url 'hormiga' %}">Ver gasto hormiga</a></p>
+    {% endif %}
+
+    <section class="bloque" aria-labelledby="titulo-total">
+      <h2 id="titulo-total">Total de {{ hoy|date:"F \d\e Y" }}</h2>
+      <p class="numero">${{ total_mes|floatformat:"0g" }}</p>
+    </section>
+
+    <section class="bloque" aria-labelledby="titulo-categorias">
+      <h2 id="titulo-categorias">Por categoría</h2>
+      {% if por_categoria %}
+        <div class="tabla-desplazable">
+          <table>
+            <caption>Total del mes por categoría. Montos en pesos colombianos.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Categoría</th>
+                <th scope="col" class="numero">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for fila in por_categoria %}
+                <tr>
+                  <td>{{ fila.categoria_nombre }}</td>
+                  <td class="numero">${{ fila.total|floatformat:"0g" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p>No tienes gastos registrados este mes.</p>
+      {% endif %}
+    </section>
   {% else %}
+    <h1>Hormiguero</h1>
+    <p>Gestor de gastos personales con metas de ahorro.</p>
     <p><a href="{% url 'login' %}">Iniciar sesión</a> · <a href="{% url 'registro' %}">Crear cuenta</a></p>
   {% endif %}
 {% endblock %}
