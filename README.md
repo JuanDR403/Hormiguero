@@ -75,9 +75,9 @@ Ningún agente hace push ni fusiona.
 
 | Agente | Modelo | Escribe en | Ejecuta |
 |---|---|---|---|
-| [coordinador](.claude/agents/coordinador.md) | opus | `specs/` | git local (`status`, `diff`, `log`, `switch`, `add`, `commit`) |
+| [coordinador](.claude/agents/coordinador.md) | opus | `specs/` | git sin push (`status`, `diff`, `log`, `ls-files`, `fetch`, `pull`, `switch`, `add`, `commit`) |
 | [probador](.claude/agents/probador.md) | sonnet | `gastos/tests/` | `manage.py test` |
-| [implementador-backend](.claude/agents/implementador-backend.md) | sonnet | `gastos/` (sin `tests/` ni `migrations/`) y `config/settings.py` | `manage.py test`, `check`, `makemigrations` |
+| [implementador-backend](.claude/agents/implementador-backend.md) | sonnet | `gastos/` (sin `tests/` ni `migrations/`) y `config/settings.py` | `manage.py test`, `check`, `makemigrations`, `coverage` |
 | [implementador-frontend](.claude/agents/implementador-frontend.md) | sonnet | `templates/`, `static/` | `manage.py test`, `curl` a `localhost:8000` |
 | [revisor](.claude/agents/revisor.md) | opus | nada | `manage.py test`, `check`, `makemigrations --check`, `coverage`, git de lectura |
 
@@ -106,8 +106,10 @@ Cambios observados al ejecutar las specs:
 | 001 | El hook rechazó el commit con la línea `Co-Authored-By: ... <correo>`, por los símbolos `<` y `>` y por el salto de línea del mensaje. | El hook ya no revisa esos símbolos dentro del texto entre comillas. Fuera de las comillas siguen prohibidos, igual que `$(` y las comillas invertidas en cualquier parte. |
 | 001 | Los agentes anteponían `cd <carpeta> &&` a los comandos y el hook lo rechazaba por encadenar. | Las instrucciones de cada agente dicen que ejecute un comando por llamada, sin `cd`. |
 | 001 | El `revisor` encontró que el hook se podía saltar con una comilla escapada (`git status \' ; otro comando ; \'`) y que un subagente sin perfil quedaba sin restricciones. | El hook rechaza la barra invertida y las comillas sin cerrar, y un agente sin perfil no puede escribir ni ejecutar. Lo cubren las pruebas de `gastos/tests/test_hook_permisos.py`. |
+| 001 a 003 | El coordinador intentó `git ls-files` en cada spec para listar los archivos y el hook lo rechazó. | Se permite `git ls-files` al coordinador y al revisor: solo lee. |
+| 001 y 003 | La tarea del `implementador-backend` pedía confirmar la cobertura, pero no podía ejecutar `coverage`; la medía después el `revisor`. | El `implementador-backend` puede ejecutar `coverage run` y `coverage report`, y cierra su tarea con la cobertura medida. |
 
-El detalle está en [specs/001-gasto-hormiga/evidencia.md](specs/001-gasto-hormiga/evidencia.md). Esta tabla se completa con cada spec.
+El detalle está en el `evidencia.md` de cada spec, empezando por [specs/001-gasto-hormiga/evidencia.md](specs/001-gasto-hormiga/evidencia.md). Esta tabla se completa con cada spec.
 
 ## Specs
 

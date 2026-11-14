@@ -17,7 +17,8 @@ import sys
 TEST = "python manage.py test"
 CHECK = "python manage.py check"
 MIGRACIONES_CHECK = "python manage.py makemigrations --check"
-GIT_LECTURA = ("git status", "git diff", "git log")
+GIT_LECTURA = ("git status", "git diff", "git log", "git ls-files")
+COBERTURA = ("coverage run", "coverage report")
 
 # escribe: prefijos de ruta permitidos. no_escribe: excepciones dentro de ellos.
 # bash: prefijos de comando permitidos.
@@ -36,7 +37,7 @@ ROLES = {
     "implementador-backend": {
         "escribe": ("gastos/", "config/settings.py"),
         "no_escribe": ("gastos/tests/", "gastos/migrations/"),
-        "bash": (TEST, CHECK, "python manage.py makemigrations"),
+        "bash": (TEST, CHECK, "python manage.py makemigrations") + COBERTURA,
     },
     "implementador-frontend": {
         "escribe": ("templates/", "static/"),
@@ -51,7 +52,7 @@ ROLES = {
         "escribe": (),
         "no_escribe": (),
         "bash": GIT_LECTURA
-        + (TEST, CHECK, MIGRACIONES_CHECK, "coverage run", "coverage report"),
+        + (TEST, CHECK, MIGRACIONES_CHECK) + COBERTURA,
     },
 }
 

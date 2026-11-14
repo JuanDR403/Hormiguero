@@ -63,6 +63,12 @@ class ComandosPorRolTests(SimpleTestCase):
         self.assertIsNone(bash("probador", "python manage.py test gastos.tests"))
         self.assertIsNotNone(bash("probador", "git status"))
         self.assertIsNone(bash("revisor", "coverage report"))
+        self.assertIsNone(bash("implementador-backend", "coverage run manage.py test"))
+        self.assertIsNone(bash("implementador-backend", "coverage report"))
+        self.assertIsNotNone(bash("probador", "coverage report"))
+        self.assertIsNone(bash("coordinador", "git ls-files gastos"))
+        self.assertIsNone(bash("revisor", "git ls-files"))
+        self.assertIsNotNone(bash("probador", "git ls-files"))
         self.assertIsNone(bash("coordinador", "git pull --ff-only"))
         self.assertIsNotNone(bash("coordinador", "python manage.py test"))
 
