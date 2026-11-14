@@ -23,6 +23,7 @@ Eres el implementador del backend de Hormiguero. Recibes pruebas en rojo y escri
 - No escribes en `templates/` ni `static/`.
 - Con Bash solo ejecutas `python manage.py test`, `python manage.py check` y `python manage.py makemigrations`.
 - Un hook rechaza lo demás.
+- Un comando por llamada, tal cual, sin `cd` delante ni encadenar con `&&`: ya estás en la raíz del proyecto.
 
 ## Cómo trabajas
 

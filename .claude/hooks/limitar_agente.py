@@ -11,6 +11,7 @@ al agente.
 
 import json
 import os
+import re
 import sys
 
 TEST = "python manage.py test"
@@ -24,7 +25,8 @@ ROLES = {
     "coordinador": {
         "escribe": ("specs/",),
         "no_escribe": (),
-        "bash": GIT_LECTURA + ("git switch", "git add", "git commit"),
+        "bash": GIT_LECTURA
+        + ("git fetch", "git pull", "git switch", "git add", "git commit"),
     },
     "probador": {
         "escribe": ("gastos/tests/",),
@@ -54,7 +56,10 @@ ROLES = {
 }
 
 # Con esto se encadenan o redirigen comandos; ningún agente lo necesita.
-PROHIBIDO_EN_BASH = (";", "&", "|", ">", "<", "`", "$(", "\n")
+PROHIBIDO_EN_BASH = (";", "&", "|", ">", "<")
+# Esto ejecuta otro comando incluso dentro de comillas dobles.
+SUSTITUCION = ("`", "$(")
+TEXTO_ENTRE_COMILLAS = re.compile(r"'[^']*'|\"[^\"]*\"")
 
 
 def ruta_relativa(ruta, raiz):
@@ -83,11 +88,17 @@ def motivo_de_rechazo(rol, herramienta, entrada, raiz):
         return None
 
     if herramienta == "Bash":
-        comando = " ".join((entrada.get("command") or "").split())
-        if (entrada.get("command") or "").strip().count("\n"):
+        original = (entrada.get("command") or "").strip()
+        if any(simbolo in original for simbolo in SUSTITUCION):
+            return "No se permite ejecutar un comando dentro de otro."
+        # El texto entre comillas (un mensaje de commit) puede llevar saltos
+        # de línea y símbolos como < y >; fuera de las comillas, no.
+        sin_comillas = TEXTO_ENTRE_COMILLAS.sub("''", original)
+        if "\n" in sin_comillas:
             return "Un solo comando por llamada."
-        if any(simbolo in comando for simbolo in PROHIBIDO_EN_BASH):
+        if any(simbolo in sin_comillas for simbolo in PROHIBIDO_EN_BASH):
             return "No se permite encadenar ni redirigir comandos."
+        comando = " ".join(original.split())
         if comando.startswith(".venv/bin/"):
             comando = comando[len(".venv/bin/"):]
         if comando.startswith("git push") or " --force" in comando:
@@ -104,6 +115,12 @@ def main():
     rol = sys.argv[1] if len(sys.argv) > 1 else ""
     datos = json.load(sys.stdin)
     raiz = os.environ.get("CLAUDE_PROJECT_DIR") or datos.get("cwd") or os.getcwd()
+    # El hook de un agente abierto con `claude --agent` sigue activo mientras
+    # trabajan sus subagentes. Cada subagente tiene su propio hook, así que
+    # este solo juzga las llamadas del agente al que pertenece.
+    quien_llama = datos.get("agent_type")
+    if quien_llama and quien_llama != rol:
+        return
     motivo = motivo_de_rechazo(
         rol, datos.get("tool_name", ""), datos.get("tool_input") or {}, raiz
     )
