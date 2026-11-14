@@ -67,6 +67,9 @@
 | `test_base_de_datos_rechaza_ahorrado_negativo` | CA18 | `IntegrityError` |
 | `test_usuario_solo_ve_sus_metas` | CA19 | `ana.metas` sin las de beto |
 | `test_borrar_usuario_borra_sus_metas` | CA19 | cascada |
+| `test_base_de_datos_acepta_precio_uno` | CA18 (revisión, hallazgo 1) | precio 1 se guarda |
+| `test_str_muestra_nombre_y_precio` | Plan, modelo (revisión, hallazgo 2) | `"Portátil · $1500000"` |
+| `test_metas_se_ordenan_por_fecha_limite` | Plan, modelo (revisión, hallazgo 3) | orden por `fecha_limite` y luego `id` |
 | (existente) `test_las_reglas_no_importan_django_ni_el_resto_de_la_app` | CA20 | `metas.py` sin Django |
 
 ## Verificación

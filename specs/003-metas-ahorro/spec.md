@@ -64,6 +64,10 @@ Respondidas por el desarrollador el 2026-11-14:
 - Validación completa: nombre no vacío, precio > 0, ahorrado ≥ 0 (puede superar el precio), fecha límite hoy o después.
 - Meta cumplida: cuota 0.
 
+Respondidas por el desarrollador el 2026-11-14, después de la revisión:
+- Centavos: `validar_meta` y `calcular_cuota_mensual` suponen montos sin centavos. Los rechazarán el modelo (`decimal_places=0`) y el formulario de `/metas/`. La regla no los valida y la cuota los recorta con `int()`.
+- Longitud del nombre: el límite de 100 caracteres lo aplicará el formulario de `/metas/` (`max_length=100`). `validar_meta` no lo comprueba.
+
 Propuestas por el coordinador y aprobadas por el desarrollador junto con la spec el 2026-11-14:
 - La regla de cuota no valida la entrada (la valida `validar_meta` y el modelo); una fecha pasada solo se trata para que la cuota de metas viejas no falle.
 - `ahorrado` tiene valor por defecto 0.
