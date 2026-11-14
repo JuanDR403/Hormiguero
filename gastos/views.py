@@ -15,6 +15,7 @@ from .reglas.metas import (
     estado_meta,
     meses_restantes,
 )
+from .reglas.resumen import resumir_mes
 
 NOMBRES_ESTADO = {
     "cumplida": "Cumplida",
@@ -24,7 +25,32 @@ NOMBRES_ESTADO = {
 
 
 def inicio(request):
-    return render(request, "inicio.html")
+    if not request.user.is_authenticated:
+        return render(request, "inicio.html")
+
+    hoy = timezone.localdate()
+    gastos = Gasto.objects.filter(usuario=request.user)
+    resumen = resumir_mes(gastos, hoy)
+    nombres_categoria = dict(Gasto.Categoria.choices)
+    for categoria in resumen["por_categoria"]:
+        # Si el código no está entre las opciones, se muestra tal cual.
+        categoria["categoria_nombre"] = nombres_categoria.get(
+            categoria["categoria"], categoria["categoria"]
+        )
+    grupos = detectar_gasto_hormiga(
+        gastos,
+        settings.GASTO_HORMIGA_UMBRAL,
+        settings.GASTO_HORMIGA_N,
+        hoy,
+    )
+    contexto = {
+        "hoy": hoy,
+        "total_mes": resumen["total"],
+        "por_categoria": resumen["por_categoria"],
+        "cantidad_hormiga": len(grupos),
+        "dias": VENTANA_DIAS,
+    }
+    return render(request, "inicio.html", contexto)
 
 
 def registro(request):
