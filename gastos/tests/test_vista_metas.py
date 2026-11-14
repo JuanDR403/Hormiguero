@@ -1,3 +1,4 @@
+import re
 from datetime import date
 from unittest import mock
 
@@ -126,7 +127,7 @@ class ListaMetasTests(BaseMetasTests):
         respuesta = self.client.get(URL_METAS)
         self.assertContains(respuesta, "$333.334")
         self.assertContains(respuesta, "$1.000.000")
-        self.assertRegex(respuesta.content.decode(), r">\s*3\s*<")
+        self.assertContains(respuesta, '<td class="numero">3</td>', html=True)
         self.assertContains(respuesta, "En curso")
 
     # CA9
@@ -203,6 +204,7 @@ class CrearMetaTests(BaseMetasTests):
         self.client.force_login(self.ana)
         respuesta = self.client.post(URL_METAS, self.datos_formulario(ahorrado="0"))
         self.assertRedirects(respuesta, URL_METAS)
+        self.assertEqual(Meta.objects.get().ahorrado, 0)
 
     def test_ahorrado_mayor_que_el_precio_es_valido(self):
         self.client.force_login(self.ana)
@@ -239,14 +241,33 @@ class CrearMetaTests(BaseMetasTests):
         self.assertFalse(Meta.objects.exists())
         return respuesta
 
+    def obligatorio(self, campo):
+        from gastos.forms import FormularioMeta
+
+        return str(FormularioMeta().fields[campo].error_messages["required"])
+
     def test_nombre_vacio_no_guarda(self):
-        self.assert_no_guarda("nombre", nombre="")
+        self.assert_no_guarda("nombre", self.obligatorio("nombre"), nombre="")
 
     def test_nombre_solo_espacios_no_guarda(self):
-        self.assert_no_guarda("nombre", nombre="   ")
+        self.assert_no_guarda("nombre", self.obligatorio("nombre"), nombre="   ")
 
     def test_nombre_de_101_caracteres_no_guarda(self):
-        self.assert_no_guarda("nombre", nombre="a" * 101)
+        respuesta = self.assert_no_guarda("nombre", nombre="a" * 101)
+        mensaje = respuesta.context["formulario"].errors["nombre"][0]
+        self.assertIn("100", mensaje)
+        self.assertIn("101", mensaje)
+
+    def test_precio_vacio_no_guarda(self):
+        self.assert_no_guarda("precio", self.obligatorio("precio"), precio="")
+
+    def test_ahorrado_vacio_no_guarda(self):
+        self.assert_no_guarda("ahorrado", self.obligatorio("ahorrado"), ahorrado="")
+
+    def test_fecha_limite_vacia_no_guarda(self):
+        self.assert_no_guarda(
+            "fecha_limite", self.obligatorio("fecha_limite"), fecha_limite=""
+        )
 
     def test_precio_cero_no_guarda(self):
         self.assert_no_guarda("precio", "El precio debe ser mayor que cero.", precio="0")
@@ -291,9 +312,18 @@ class CrearMetaTests(BaseMetasTests):
     def test_pagina_muestra_ahorrado_con_cero_inicial(self):
         self.client.force_login(self.ana)
         respuesta = self.client.get(URL_METAS)
-        self.assertContains(respuesta, 'name="ahorrado"')
-        self.assertContains(respuesta, 'value="0"')
+        formulario = respuesta.context["formulario"]
+        self.assertEqual(formulario["ahorrado"].value(), 0)
+        self.assertIsNone(formulario["fecha_limite"].value())
+        contenido = respuesta.content.decode()
+        self.assertRegex(
+            contenido, r'<input[^>]*name="ahorrado"[^>]*value="0"|<input[^>]*value="0"[^>]*name="ahorrado"'
+        )
+        self.assertRegex(contenido, r'<input[^>]*id="id_ahorrado"[^>]*value="0"|<input[^>]*value="0"[^>]*id="id_ahorrado"')
+        self.assertContains(respuesta, 'id="id_fecha_limite"')
         self.assertContains(respuesta, 'type="date"')
+        entrada_fecha = re.search(r'<input[^>]*id="id_fecha_limite"[^>]*>', contenido).group(0)
+        self.assertNotIn("value=", entrada_fecha)
 
 
 class EliminarMetaTests(BaseMetasTests):
@@ -376,7 +406,22 @@ class PaginaYEncabezadoTests(BaseMetasTests):
         self.assertContains(respuesta, "Metas de ahorro")
 
     def test_sin_sesion_el_encabezado_no_enlaza_a_metas(self):
-        respuesta = self.client.get("/login/")
+        # "/" hereda de templates/base.html; "/login/" no, y no probaría nada.
+        respuesta = self.client.get("/")
         self.assertEqual(respuesta.status_code, 200)
+        self.assertTemplateUsed(respuesta, "base.html")
+        self.assertContains(respuesta, 'class="encabezado"')
+        self.assertContains(respuesta, '<a class="marca" href="/"')
         self.assertNotContains(respuesta, 'href="/metas/"')
         self.assertNotContains(respuesta, "Metas de ahorro")
+
+    def test_nombre_con_caracteres_especiales_sale_escapado_en_aria_label(self):
+        self.crear_meta(self.ana, nombre='Viaje "Cali" <2027> & más')
+        self.client.force_login(self.ana)
+        respuesta = self.client.get(URL_METAS)
+        self.assertContains(
+            respuesta,
+            'aria-label="Eliminar meta Viaje &quot;Cali&quot; &lt;2027&gt; &amp; más"',
+        )
+        self.assertNotContains(respuesta, "<2027>")
+        self.assertNotContains(respuesta, 'Viaje "Cali"')
