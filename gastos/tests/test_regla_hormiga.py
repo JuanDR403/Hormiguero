@@ -143,6 +143,42 @@ class DetectarGastoHormigaTests(SimpleTestCase):
             [("alimentacion", "arepa"), ("alimentacion", "tinto"), ("transporte", "bus")],
         )
 
+    def test_descripcion_none_se_trata_como_vacia(self):
+        resultado = detectar(tres(descripcion=None))
+        self.assertEqual(
+            resultado,
+            [{"categoria": "alimentacion", "descripcion": "", "cantidad": 3, "total": 12000}],
+        )
+
+    def test_descripcion_none_y_vacia_forman_un_solo_grupo(self):
+        gastos = [gasto(descripcion=None), gasto(descripcion=""), gasto(descripcion=None)]
+        resultado = detectar(gastos)
+        self.assertEqual(len(resultado), 1)
+        self.assertEqual(resultado[0]["descripcion"], "")
+        self.assertEqual(resultado[0]["cantidad"], 3)
+
+    def test_espacios_en_blanco_de_cualquier_tipo_se_colapsan(self):
+        gastos = [
+            gasto(descripcion="tinto\tgrande"),
+            gasto(descripcion="tinto\ngrande"),
+            gasto(descripcion="tinto  grande"),
+        ]
+        resultado = detectar(gastos)
+        self.assertEqual(len(resultado), 1)
+        self.assertEqual(resultado[0]["descripcion"], "tinto grande")
+        self.assertEqual(resultado[0]["cantidad"], 3)
+
+    def test_misma_descripcion_en_dos_categorias_forma_dos_grupos(self):
+        gastos = tres(categoria="alimentacion") + tres(categoria="transporte")
+        resultado = detectar(gastos)
+        self.assertEqual(
+            resultado,
+            [
+                {"categoria": "alimentacion", "descripcion": "tinto", "cantidad": 3, "total": 12000},
+                {"categoria": "transporte", "descripcion": "tinto", "cantidad": 3, "total": 12000},
+            ],
+        )
+
     def test_sin_gastos_devuelve_lista_vacia(self):
         self.assertEqual(detectar([]), [])
 
