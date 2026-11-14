@@ -108,22 +108,32 @@ Cambios observados al ejecutar las specs:
 | 001 | El `revisor` encontró que el hook se podía saltar con una comilla escapada (`git status \' ; otro comando ; \'`) y que un subagente sin perfil quedaba sin restricciones. | El hook rechaza la barra invertida y las comillas sin cerrar, y un agente sin perfil no puede escribir ni ejecutar. Lo cubren las pruebas de `gastos/tests/test_hook_permisos.py`. |
 | 001 a 003 | El coordinador intentó `git ls-files` en cada spec para listar los archivos y el hook lo rechazó. | Se permite `git ls-files` al coordinador y al revisor: solo lee. |
 | 001 y 003 | La tarea del `implementador-backend` pedía confirmar la cobertura, pero no podía ejecutar `coverage`; la medía después el `revisor`. | El `implementador-backend` puede ejecutar `coverage run` y `coverage report`, y cierra su tarea con la cobertura medida. |
+| 002 y 004 | La herramienta corta la salida larga de `python manage.py test` y el hook no deja filtrarla con `tail` ni redirigirla. | No se cambió el hook: permitir tuberías abre la puerta a encadenar comandos. Los agentes ejecutan las pruebas por módulo. |
+| 004 y 005 | El `implementador-frontend` no puede ejecutar `coverage` ni `git diff`. | No se cambió: la cobertura la mide el `revisor` y el coordinador comprueba el diff del frontend antes de cada commit. Desde la spec 005 el coordinador pide la cobertura al `revisor` desde el principio. |
+| 005 | El `probador` y el `implementador-frontend` trabajaron a la vez en la vuelta de corrección, sobre archivos distintos, sin estorbarse. | Nada: las carpetas separadas lo permiten. |
 
-El detalle está en el `evidencia.md` de cada spec, empezando por [specs/001-gasto-hormiga/evidencia.md](specs/001-gasto-hormiga/evidencia.md). Esta tabla se completa con cada spec.
+El detalle está en el `evidencia.md` de cada spec, en la parte de incidencias o notas del arnés.
 
 ## Specs
 
-| Spec | Carpeta | Pull request |
-|---|---|---|
-| Pendiente | | |
+| Spec | Qué construye | Especificación, plan, tareas y evidencia | Pull request | CI del pull request |
+|---|---|---|---|---|
+| 001 | Regla de gasto hormiga (backend) | [specs/001-gasto-hormiga/](specs/001-gasto-hormiga/) | [#9](https://github.com/JuanDR403/Hormiguero/pull/9) | [en verde](https://github.com/JuanDR403/Hormiguero/actions/runs/43600869332) |
+| 002 | Pantalla `/hormiga/` | [specs/002-pantalla-hormiga/](specs/002-pantalla-hormiga/) | [#10](https://github.com/JuanDR403/Hormiguero/pull/10) | [en verde](https://github.com/JuanDR403/Hormiguero/actions/runs/43611356058) |
+| 003 | Modelo `Meta` y cuota mensual (backend) | [specs/003-metas-ahorro/](specs/003-metas-ahorro/) | [#11](https://github.com/JuanDR403/Hormiguero/pull/11) | [en verde](https://github.com/JuanDR403/Hormiguero/actions/runs/43615045495) |
+| 004 | Pantalla `/metas/` | [specs/004-pantalla-metas/](specs/004-pantalla-metas/) | [#13](https://github.com/JuanDR403/Hormiguero/pull/13) | [en verde](https://github.com/JuanDR403/Hormiguero/actions/runs/43618900192) |
+| 005 | Resumen del mes en la página de inicio | [specs/005-resumen/](specs/005-resumen/) | [#14](https://github.com/JuanDR403/Hormiguero/pull/14) | [en verde](https://github.com/JuanDR403/Hormiguero/actions/runs/43625804908) |
+
+Los cambios del arnés que no cabían en una spec tienen su propio pull request: [#8](https://github.com/JuanDR403/Hormiguero/pull/8) (arnés inicial) y [#12](https://github.com/JuanDR403/Hormiguero/pull/12) (permisos).
 
 ## Calidad y su evidencia
 
 | Mecanismo | Cómo funciona | Dónde está la evidencia |
 |---|---|---|
-| CI en cada pull request | [ci.yml](.github/workflows/ci.yml) ejecuta `check`, `makemigrations --check` y las pruebas. | Pestaña [Actions](https://github.com/JuanDR403/Hormiguero/actions) y los checks de cada PR. |
-| Cobertura mínima del 80 % | `coverage report` falla por debajo del umbral de [.coveragerc](.coveragerc). | Resumen del job en Actions. |
-| TDD visible en el historial | El `probador` no puede escribir código y el implementador no puede escribir pruebas. El commit `test:` va antes del `feat:`. | Historial de cada rama y la salida en rojo de cada `evidencia.md`. |
-| Revisión con hallazgos | El `revisor` reporta `archivo:línea`; cada hallazgo se corrige o se descarta con motivo. Otro integrante aprueba el PR. | `evidencia.md` de cada spec y la conversación del PR. |
+| CI en cada pull request | [ci.yml](.github/workflows/ci.yml) ejecuta `check`, `makemigrations --check` y las pruebas. | Pestaña [Actions](https://github.com/JuanDR403/Hormiguero/actions): 14 ejecuciones, todas en verde. El enlace de cada spec está en la tabla de specs. |
+| Cobertura mínima del 80 % | `coverage report` falla por debajo del umbral de [.coveragerc](.coveragerc). | Resumen de cobertura de cada ejecución en Actions. En `main`: 99 % con 265 pruebas. |
+| TDD visible en el historial | El `probador` no puede escribir código y el implementador no puede escribir pruebas. El commit `test:` va antes del `feat:`. | Historial de cada pull request (por ejemplo, en [#11](https://github.com/JuanDR403/Hormiguero/pull/11/commits) el commit `test:` en rojo va antes del `feat:`) y la salida en rojo copiada en cada `evidencia.md`. |
+| Revisión con hallazgos | El `revisor` reporta `archivo:línea`; cada hallazgo se corrige o se descarta con motivo. Máximo dos vueltas. | Sección de revisión de cada `evidencia.md`. Ejemplos: en la [001](specs/001-gasto-hormiga/evidencia.md) encontró cómo saltarse el hook de permisos; en la [002](specs/002-pantalla-hormiga/evidencia.md), un error con una categoría desconocida; en la [005](specs/005-resumen/evidencia.md), una prueba que ocultaba «Noviembre» con mayúscula. |
+| Pruebas del propio arnés | `gastos/tests/test_hook_permisos.py` comprueba los permisos de cada agente y `test_arquitectura.py`, que las reglas no importan Django. | Corren en el CI con el resto de las pruebas. |
 
-Lo que estos controles no ven: un requisito mal entendido en la spec, pruebas débiles que sí cubren las líneas (no usamos mutation testing) y la experiencia real en el navegador, que revisa una persona con `runserver`.
+Lo que estos controles no ven: un requisito mal entendido en la spec (en la 005, la spec y la primera prueba suponían lo mismo sobre el nombre del mes y las dos estaban equivocadas), pruebas débiles que sí cubren las líneas (no usamos mutation testing) y la experiencia real en el navegador, que revisa una persona con `runserver`.

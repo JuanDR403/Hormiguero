@@ -599,7 +599,7 @@ PREGUNTAS PARA EL DESARROLLADOR: ninguna
 - Pendiente del desarrollador:
   - la revisión manual con `runserver` (abrir `/hormiga/` con y sin gastos hormiga);
   - el push y el pull request;
-  - el enlace al PR en este archivo.
+  - el enlace al PR en este archivo: https://github.com/JuanDR403/Hormiguero/pull/10 (fusionado).
 
 ## Propuestas para ajustar el arnés
 - Los agentes y `AGENTS.md` dicen `python manage.py test`, pero en esta sesión solo funciona `.venv/bin/python manage.py test`. Conviene documentarlo en los agentes o permitirlo explícitamente en el hook.
