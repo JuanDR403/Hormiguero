@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
@@ -13,7 +14,11 @@ AVISO_SIN_GRUPOS = "No se detectaron gastos hormiga en los últimos 30 días."
 
 class VistaHormigaTests(TestCase):
     def setUp(self):
+        # La prueba y la vista comparten el mismo día, aunque corra a medianoche.
         self.hoy = timezone.localdate()
+        parche = mock.patch("gastos.views.timezone.localdate", return_value=self.hoy)
+        parche.start()
+        self.addCleanup(parche.stop)
         self.ana = Usuario.objects.create_user("ana@ejemplo.com", password="clave-de-ejemplo-1")
         self.beto = Usuario.objects.create_user("beto@ejemplo.com", password="clave-de-ejemplo-2")
 
@@ -150,6 +155,15 @@ class VistaHormigaTests(TestCase):
         self.assertIn("pan", html)
         self.assertLess(html.index("tinto"), html.index("pan"))
 
+    # CA15
+
+    def test_categoria_desconocida_muestra_el_codigo(self):
+        self.crear_gastos(self.ana, 3, categoria="antigua")
+        respuesta = self.ver_como_ana()
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(len(respuesta.context["grupos"]), 1)
+        self.assertEqual(respuesta.context["grupos"][0]["categoria_nombre"], "antigua")
+
     # CA10
 
     def test_grupo_sin_descripcion_se_muestra_como_sin_descripcion(self):
@@ -162,9 +176,10 @@ class VistaHormigaTests(TestCase):
 
     def test_muestra_el_criterio_con_los_valores_por_defecto(self):
         respuesta = self.ver_como_ana()
-        self.assertContains(respuesta, "$10.000")
-        self.assertContains(respuesta, "3 o más veces")
-        self.assertContains(respuesta, "30 días")
+        self.assertContains(
+            respuesta,
+            "Compras de hasta $10.000 que se repiten 3 o más veces en los últimos 30 días.",
+        )
         self.assertEqual(respuesta.context["umbral"], 10000)
         self.assertEqual(respuesta.context["n"], 3)
         self.assertEqual(respuesta.context["dias"], 30)
@@ -172,8 +187,10 @@ class VistaHormigaTests(TestCase):
     @override_settings(GASTO_HORMIGA_UMBRAL=5000, GASTO_HORMIGA_N=4)
     def test_el_criterio_cambia_con_settings(self):
         respuesta = self.ver_como_ana()
-        self.assertContains(respuesta, "$5.000")
-        self.assertContains(respuesta, "4 o más veces")
+        self.assertContains(
+            respuesta,
+            "Compras de hasta $5.000 que se repiten 4 o más veces en los últimos 30 días.",
+        )
         self.assertEqual(respuesta.context["umbral"], 5000)
         self.assertEqual(respuesta.context["n"], 4)
 
