@@ -605,4 +605,4 @@ Nota del coordinador: la pregunta del contorno de foco no bloquea esta spec. Cum
 - `makemigrations --check --dry-run`: `No changes detected`.
 
 ## Pull request
-Pendiente: el desarrollador hace el push de `feat/resumen` y abre el pull request. Se añadirá aquí el enlace.
+https://github.com/JuanDR403/Hormiguero/pull/14 (fusionado).

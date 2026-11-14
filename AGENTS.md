@@ -36,14 +36,16 @@ Cada funcionalidad es una spec en `specs/NNN-tema/` (`spec.md`, `plan.md`, `tare
 
 **Dependencias:** las vistas llaman a `reglas/`; `reglas/` no importa Django ni las vistas; las plantillas solo muestran datos.
 
-## Estado y pantallas previstas
+## Estado
 
-Existen el esqueleto, la autenticación (inicio de sesión, registro y cierre de sesión con `django.contrib.auth`) y la página de inicio, que muestra el saludo si hay sesión. Existe el modelo `Gasto` con su validación (`gastos/reglas/gastos.py`). Las pantallas del dominio y la de inicio heredan de `templates/base.html` (viewport, `<main>`, encabezado con navegación y mensajes). Se construye en este orden:
+Las cuatro pantallas del dominio están hechas. Todas heredan de `templates/base.html` (viewport, `<main>`, encabezado con navegación y mensajes) y exigen sesión.
 
-1. **Gastos** (`/gastos/`): lista, formulario para crear y eliminar. *Hecho* (`templates/gastos/lista.html`).
-2. **Gasto hormiga** (`/hormiga/`): compras pequeñas repetidas detectadas.
-3. **Metas de ahorro** (`/metas/`): lista, formulario y cuota mensual calculada.
-4. **Resumen**: total del mes, total por categoría y aviso de gasto hormiga. Reemplazará la página de inicio.
+1. **Gastos** (`/gastos/`): lista, formulario para crear y eliminar. Regla `gastos/reglas/gastos.py`, plantilla `templates/gastos/lista.html`.
+2. **Gasto hormiga** (`/hormiga/`): grupos de compras pequeñas repetidas. Regla `gastos/reglas/hormiga.py`, plantilla `templates/gastos/hormiga.html`.
+3. **Metas de ahorro** (`/metas/`): lista con cuota mensual y estado, formulario para crear y eliminar. Modelo `Meta`, regla `gastos/reglas/metas.py`, plantilla `templates/gastos/metas.html`.
+4. **Resumen** (`/`): con sesión, total del mes, total por categoría y aviso de gasto hormiga. Regla `gastos/reglas/resumen.py`, plantilla `templates/inicio.html`. Sin sesión, la página enlaza a iniciar sesión y crear cuenta.
+
+Pendientes conocidos, sin spec: `autocomplete="off"` en los formularios de gastos y metas; «Eliminar» borra sin pedir confirmación; el contorno de foco tiene poco margen de contraste sobre el fondo del aviso.
 
 Decisiones de alcance: lista y formulario en la misma página; sin pantalla de edición (solo crear, listar y eliminar); umbral y N como constantes en `settings.py`; autenticación mínima (sin recuperación de contraseña, verificación de correo ni perfiles); la IA no es una pantalla.
 
@@ -51,8 +53,10 @@ Decisiones de alcance: lista y formulario en la misma página; sin pantalla de e
 
 - Un gasto requiere monto mayor que cero y fecha no futura.
 - Los montos son pesos colombianos enteros (sin centavos).
-- **Gasto hormiga:** compras bajo un umbral configurable que se repiten N veces en 30 días.
-- **Cuota de ahorro:** (precio − ahorrado) ÷ meses restantes, redondeada hacia arriba.
+- **Gasto hormiga:** compras de monto menor o igual a un umbral configurable que se repiten N veces o más, con la misma categoría y descripción, entre hoy − 30 días y hoy. Umbral y N están en `settings.py` (`GASTO_HORMIGA_UMBRAL`, `GASTO_HORMIGA_N`).
+- **Cuota de ahorro:** (precio − ahorrado) ÷ meses restantes, redondeada hacia arriba. Los meses se cuentan por calendario, sin mirar el día. Sin meses restantes, la cuota es todo lo que falta; con la meta cumplida, es 0.
+- **Estado de una meta:** cumplida si lo ahorrado alcanza el precio; vencida si falta dinero y la fecha límite ya pasó; en curso en los demás casos.
+- **Resumen:** el total del mes y el total por categoría cuentan del día 1 hasta hoy; el aviso de gasto hormiga usa los últimos 30 días.
 - Cada gasto y cada meta pertenece a un usuario. Un usuario solo ve y modifica los suyos, y las vistas del dominio exigen sesión iniciada.
 - El correo electrónico es el nombre de usuario: no puede repetirse y se normaliza (sin espacios y en minúsculas) antes de guardarse.
 - Si se agrega un consejo con IA, el código calcula los números y la IA solo los explica; debe poder simularse en las pruebas.

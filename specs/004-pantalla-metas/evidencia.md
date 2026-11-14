@@ -310,4 +310,4 @@ PREGUNTAS PARA EL DESARROLLADOR: ninguna.
 3. Rechazos menores: `ls` (implementador-backend), `grep` con barra invertida (implementador-frontend), `git grep` (revisor). Todos se sortearon con Read.
 
 ## Pull request
-Pendiente: lo abre el desarrollador.
+https://github.com/JuanDR403/Hormiguero/pull/13 (fusionado).

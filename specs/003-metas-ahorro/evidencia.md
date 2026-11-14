@@ -319,4 +319,4 @@ Commit: `e596bb2 test: pruebas de regresión de la revisión del modelo Meta (sp
 - Tareas T1, T2 y T3 marcadas en `tareas.md`.
 - Hubo una sola vuelta de corrección. No se pidió una segunda revisión porque la vuelta solo añadió pruebas a `test_modelo_meta.py`, sin tocar producción. El revisor no ha visto el commit `e596bb2`: queda para la revisión del pull request por otro integrante.
 - Cobertura: la midió el revisor en la T3 (99 % en `gastos/`, 100 % en `metas.py`, con 166 pruebas). No se volvió a medir con 169. Con la prueba del `__str__` de `Meta` debería cubrirse la línea 65 de `models.py`. La medirá el CI en el pull request.
-- Pull request: lo abre el desarrollador (pendiente de enlace).
+- Pull request: https://github.com/JuanDR403/Hormiguero/pull/11 (fusionado).
