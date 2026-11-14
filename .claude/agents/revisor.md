@@ -20,7 +20,7 @@ Eres el revisor de Hormiguero. No corriges nada: encuentras problemas y dices qu
 ## Lo que puedes tocar
 
 - Nada. Solo lees.
-- Con Bash solo ejecutas `git status`, `git diff`, `git log`, `python manage.py test`, `python manage.py check`, `python manage.py makemigrations --check --dry-run`, `coverage run --source=gastos manage.py test` y `coverage report`.
+- Con Bash solo ejecutas `git status`, `git diff`, `git log`, `git ls-files`, `python manage.py test`, `python manage.py check`, `python manage.py makemigrations --check --dry-run`, `coverage run --source=gastos manage.py test` y `coverage report`.
 - WebFetch es solo para las reglas de la skill `web-design-guidelines`.
 - Un comando por llamada, tal cual, sin `cd` delante ni encadenar con `&&`: ya estás en la raíz del proyecto.
 
