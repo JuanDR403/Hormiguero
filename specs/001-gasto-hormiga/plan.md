@@ -32,9 +32,12 @@ Archivo `gastos/tests/test_regla_hormiga.py`. Reglas con `SimpleTestCase` y `hoy
 | `test_gasto_de_hoy_cuenta` | CA5 | hoy cuenta |
 | `test_gasto_futuro_no_cuenta` | CA6 | hoy + 1 no cuenta |
 | `test_descripcion_se_normaliza` | CA7 | «Tinto», « tinto », «TINTO» → un grupo `tinto` |
+| `test_espacios_internos_se_colapsan` | Definiciones (grupo) | «tinto  grande» y variantes → un grupo `tinto grande` |
+| `test_un_gasto_sobre_el_umbral_no_se_suma_al_grupo` | CA4, Definiciones | 3 × 4000 + 1 × 10001 → cantidad 3, total 12000 |
 | `test_misma_descripcion_en_otra_categoria_es_otro_grupo` | CA8 | dos categorías no se suman |
 | `test_gastos_sin_descripcion_forman_grupo` | CA9 | descripción `""` |
 | `test_grupos_ordenados_por_cantidad_y_total` | CA10 | orden del resultado |
+| `test_empate_se_resuelve_por_categoria_y_descripcion` | Resultado (orden) | empate en cantidad y total → categoría y descripción ascendentes |
 | `test_sin_gastos_devuelve_lista_vacia` | CA11 | `[]` |
 | `test_n_es_parametro` | CA12 | n = 2 basta con dos |
 | `test_umbral_es_parametro` | CA12 | umbral 3000 excluye 4000 |
