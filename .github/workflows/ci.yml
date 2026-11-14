@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  pruebas:
+    name: Pruebas y cobertura
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Revisión de Django
+        run: python manage.py check
+
+      - name: No faltan migraciones
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Pruebas con cobertura
+        run: coverage run manage.py test
+
+      - name: Cobertura mínima del 80 %
+        run: coverage report
+
+      - name: Resumen de cobertura
+        if: always()
+        run: |
+          echo '### Cobertura de gastos/' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          coverage report >> "$GITHUB_STEP_SUMMARY" || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
