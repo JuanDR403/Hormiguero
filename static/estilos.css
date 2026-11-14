@@ -28,7 +28,19 @@ select { background-color: #fff; color: #111; }
 
 .mensajes { padding: 0.5rem 1rem; background: #ecfdf3; border: 1px solid #a6f4c5; }
 
+.aviso-hormiga {
+  padding: 0.75rem 1rem;
+  background: #fffbeb;
+  color: #3b2300;
+  border: 1px solid #f5c26b;
+  border-left: 6px solid #B45309;
+  border-radius: 0.25rem;
+}
+.aviso-hormiga a { color: #7c2d12; font-weight: bold; }
+
 .bloque { margin-block: 1.5rem; }
+
+.total-mes { margin: 0; font-size: 2rem; font-weight: bold; text-align: left; font-variant-numeric: tabular-nums; }
 
 .campo { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.75rem; max-width: 24rem; }
 .campo input, .campo select { font: inherit; padding: 0.4rem; }
