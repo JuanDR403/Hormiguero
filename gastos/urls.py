@@ -18,4 +18,5 @@ urlpatterns = [
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("gastos/", views.lista_gastos, name="lista_gastos"),
     path("gastos/<int:pk>/eliminar/", views.eliminar_gasto, name="eliminar_gasto"),
+    path("hormiga/", views.hormiga, name="hormiga"),
 ]

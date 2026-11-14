@@ -1,12 +1,14 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_safe
 
 from .forms import FormularioGasto, FormularioRegistro
 from .models import Gasto
+from .reglas.hormiga import VENTANA_DIAS, detectar_gasto_hormiga
 
 
 def inicio(request):
@@ -54,3 +56,28 @@ def eliminar_gasto(request, pk):
     gasto.delete()
     messages.success(request, "Gasto eliminado.")
     return redirect("lista_gastos")
+
+
+@login_required
+@require_safe
+def hormiga(request):
+    gastos = Gasto.objects.filter(usuario=request.user)
+    grupos = detectar_gasto_hormiga(
+        gastos,
+        settings.GASTO_HORMIGA_UMBRAL,
+        settings.GASTO_HORMIGA_N,
+        timezone.localdate(),
+    )
+    nombres_categoria = dict(Gasto.Categoria.choices)
+    for grupo in grupos:
+        # Si el código no está entre las opciones, se muestra tal cual.
+        grupo["categoria_nombre"] = nombres_categoria.get(
+            grupo["categoria"], grupo["categoria"]
+        )
+    contexto = {
+        "grupos": grupos,
+        "umbral": settings.GASTO_HORMIGA_UMBRAL,
+        "n": settings.GASTO_HORMIGA_N,
+        "dias": VENTANA_DIAS,
+    }
+    return render(request, "gastos/hormiga.html", contexto)
