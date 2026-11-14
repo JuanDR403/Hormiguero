@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from django.test import SimpleTestCase
 
+from gastos.reglas import metas
 from gastos.reglas.metas import (
     calcular_cuota_mensual,
     meses_restantes,
@@ -125,3 +126,60 @@ class ValidarMetaTests(SimpleTestCase):
 
     def test_meta_valida_no_tiene_errores(self):
         self.assertEqual(self.validar(), {})
+
+
+class CalcularFaltaTests(SimpleTestCase):
+    def test_falta_es_precio_menos_ahorrado(self):
+        self.assertEqual(metas.calcular_falta(1_200_000, 200_000), 1_000_000)
+
+    def test_falta_un_peso_por_debajo_del_precio(self):
+        self.assertEqual(metas.calcular_falta(100_000, 99_999), 1)
+
+    def test_ahorrado_igual_al_precio_da_cero(self):
+        self.assertEqual(metas.calcular_falta(500_000, 500_000), 0)
+
+    def test_ahorrado_un_peso_sobre_el_precio_da_cero(self):
+        self.assertEqual(metas.calcular_falta(500_000, 500_001), 0)
+
+    def test_ahorrado_mayor_que_precio_nunca_es_negativa(self):
+        self.assertEqual(metas.calcular_falta(500_000, 900_000), 0)
+
+    def test_falta_acepta_decimal_y_devuelve_int(self):
+        falta = metas.calcular_falta(Decimal("1200000"), Decimal("200000"))
+        self.assertIs(type(falta), int)
+        self.assertEqual(falta, 1_000_000)
+
+    def test_falta_con_decimal_cumplida_devuelve_int_cero(self):
+        falta = metas.calcular_falta(Decimal("100"), Decimal("200"))
+        self.assertIs(type(falta), int)
+        self.assertEqual(falta, 0)
+
+
+class EstadoMetaTests(SimpleTestCase):
+    def estado(self, precio, ahorrado, fecha_limite):
+        return metas.estado_meta(precio, ahorrado, fecha_limite, HOY)
+
+    def test_ahorrado_igual_al_precio_es_cumplida(self):
+        self.assertEqual(self.estado(500_000, 500_000, date(2027, 2, 1)), "cumplida")
+
+    def test_ahorrado_mayor_con_fecha_pasada_es_cumplida(self):
+        self.assertEqual(self.estado(500_000, 600_000, date(2026, 10, 1)), "cumplida")
+
+    def test_cumplida_con_fecha_de_ayer_es_cumplida(self):
+        self.assertEqual(self.estado(500_000, 500_000, date(2026, 11, 13)), "cumplida")
+
+    def test_falta_un_peso_y_fecha_ayer_es_vencida(self):
+        self.assertEqual(self.estado(500_000, 499_999, date(2026, 11, 13)), "vencida")
+
+    def test_falta_dinero_y_fecha_hoy_es_en_curso(self):
+        self.assertEqual(self.estado(500_000, 100_000, HOY), "en_curso")
+
+    def test_falta_dinero_y_fecha_manana_es_en_curso(self):
+        self.assertEqual(self.estado(500_000, 100_000, date(2026, 11, 15)), "en_curso")
+
+    def test_falta_dinero_y_fecha_futura_es_en_curso(self):
+        self.assertEqual(self.estado(500_000, 100_000, date(2027, 2, 1)), "en_curso")
+
+    def test_estado_acepta_decimal(self):
+        estado = self.estado(Decimal("500000"), Decimal("100000"), date(2026, 11, 13))
+        self.assertEqual(estado, "vencida")
