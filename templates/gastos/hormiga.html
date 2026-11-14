@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block titulo %}Gasto hormiga{% endblock %}
+
+{% block contenido %}
+  <h1>Gasto hormiga</h1>
+  <p>Compras de hasta ${{ umbral|floatformat:"0g" }} que se repiten {{ n }} o más veces en los últimos {{ dias }} días.</p>
+
+  <section class="bloque" aria-labelledby="titulo-detectados">
+    <h2 id="titulo-detectados">Compras detectadas</h2>
+    {% if grupos %}
+      <div class="tabla-desplazable">
+        <table>
+          <caption>Compras pequeñas repetidas. Montos en pesos colombianos.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Descripción</th>
+              <th scope="col">Categoría</th>
+              <th scope="col" class="numero">Veces</th>
+              <th scope="col" class="numero">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for grupo in grupos %}
+              <tr>
+                <td>{{ grupo.descripcion|default:"Sin descripción" }}</td>
+                <td>{{ grupo.categoria_nombre }}</td>
+                <td class="numero">{{ grupo.cantidad }}</td>
+                <td class="numero">${{ grupo.total|floatformat:"0g" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p>No se detectaron gastos hormiga en los últimos {{ dias }} días.</p>
+    {% endif %}
+  </section>
+{% endblock %}

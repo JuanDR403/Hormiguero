@@ -14,6 +14,7 @@
     {% if user.is_authenticated %}
       <nav aria-label="Principal">
         <a href="{% url 'lista_gastos' %}">Mis gastos</a>
+        <a href="{% url 'hormiga' %}">Gasto hormiga</a>
       </nav>
       <form method="post" action="{% url 'logout' %}">
         {% csrf_token %}
