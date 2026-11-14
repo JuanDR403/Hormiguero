@@ -105,6 +105,7 @@ Cambios observados al ejecutar las specs:
 | 001 | El coordinador no pudo actualizar `main` antes de crear la rama. | Se le permiten `git fetch` y `git pull`. Sigue sin poder hacer push. |
 | 001 | El hook rechazó el commit con la línea `Co-Authored-By: ... <correo>`, por los símbolos `<` y `>` y por el salto de línea del mensaje. | El hook ya no revisa esos símbolos dentro del texto entre comillas. Fuera de las comillas siguen prohibidos, igual que `$(` y las comillas invertidas en cualquier parte. |
 | 001 | Los agentes anteponían `cd <carpeta> &&` a los comandos y el hook lo rechazaba por encadenar. | Las instrucciones de cada agente dicen que ejecute un comando por llamada, sin `cd`. |
+| 001 | El `revisor` encontró que el hook se podía saltar con una comilla escapada (`git status \' ; otro comando ; \'`) y que un subagente sin perfil quedaba sin restricciones. | El hook rechaza la barra invertida y las comillas sin cerrar, y un agente sin perfil no puede escribir ni ejecutar. Lo cubren las pruebas de `gastos/tests/test_hook_permisos.py`. |
 
 El detalle está en [specs/001-gasto-hormiga/evidencia.md](specs/001-gasto-hormiga/evidencia.md). Esta tabla se completa con cada spec.
 

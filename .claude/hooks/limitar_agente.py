@@ -91,9 +91,16 @@ def motivo_de_rechazo(rol, herramienta, entrada, raiz):
         original = (entrada.get("command") or "").strip()
         if any(simbolo in original for simbolo in SUSTITUCION):
             return "No se permite ejecutar un comando dentro de otro."
+        # Con una barra invertida se escapa una comilla y lo que parece texto
+        # entre comillas deja de serlo. Sin barras, las comillas son simples
+        # de leer: se abren y se cierran, sin escapes.
+        if "\\" in original:
+            return "No se permite la barra invertida en los comandos."
         # El texto entre comillas (un mensaje de commit) puede llevar saltos
         # de línea y símbolos como < y >; fuera de las comillas, no.
         sin_comillas = TEXTO_ENTRE_COMILLAS.sub("''", original)
+        if "'" in sin_comillas.replace("''", "") or '"' in sin_comillas:
+            return "Comillas sin cerrar en el comando."
         if "\n" in sin_comillas:
             return "Un solo comando por llamada."
         if any(simbolo in sin_comillas for simbolo in PROHIBIDO_EN_BASH):
@@ -111,19 +118,28 @@ def motivo_de_rechazo(rol, herramienta, entrada, raiz):
     return None
 
 
+def decidir(rol, datos, raiz):
+    """Motivo del rechazo de una llamada completa, o None si se permite."""
+    herramienta = datos.get("tool_name", "")
+    # El hook de un agente abierto con `claude --agent` sigue activo mientras
+    # trabajan sus subagentes. Si quien llama es otro agente con perfil, lo
+    # juzga su propio hook. Si no tiene perfil, nadie más lo va a juzgar: no
+    # puede escribir ni ejecutar nada.
+    quien_llama = datos.get("agent_type")
+    if quien_llama and quien_llama != rol:
+        if quien_llama in ROLES:
+            return None
+        if herramienta in ("Edit", "Write", "NotebookEdit", "Bash"):
+            return f"El agente {quien_llama} no tiene perfil de permisos."
+        return None
+    return motivo_de_rechazo(rol, herramienta, datos.get("tool_input") or {}, raiz)
+
+
 def main():
     rol = sys.argv[1] if len(sys.argv) > 1 else ""
     datos = json.load(sys.stdin)
     raiz = os.environ.get("CLAUDE_PROJECT_DIR") or datos.get("cwd") or os.getcwd()
-    # El hook de un agente abierto con `claude --agent` sigue activo mientras
-    # trabajan sus subagentes. Cada subagente tiene su propio hook, así que
-    # este solo juzga las llamadas del agente al que pertenece.
-    quien_llama = datos.get("agent_type")
-    if quien_llama and quien_llama != rol:
-        return
-    motivo = motivo_de_rechazo(
-        rol, datos.get("tool_name", ""), datos.get("tool_input") or {}, raiz
-    )
+    motivo = decidir(rol, datos, raiz)
     if motivo:
         print(motivo, file=sys.stderr)
         sys.exit(2)
