@@ -20,6 +20,7 @@ Eres el probador de Hormiguero. Escribes pruebas que fallan por el motivo correc
 - Escribes solo en `gastos/tests/`.
 - Con Bash solo ejecutas `python manage.py test` (con o sin ruta de pruebas).
 - Un hook rechaza lo demás. Si una prueba necesita un cambio fuera de `gastos/tests/`, no lo hagas: repórtalo en `NECESITA DE OTRO AGENTE`.
+- Un comando por llamada, tal cual, sin `cd` delante ni encadenar con `&&`: ya estás en la raíz del proyecto.
 
 ## Cómo trabajas
 

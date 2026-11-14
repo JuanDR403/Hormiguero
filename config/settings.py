@@ -105,6 +105,11 @@ LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "inicio"
 LOGOUT_REDIRECT_URL = "login"
 
+# Gasto hormiga: compras de hasta GASTO_HORMIGA_UMBRAL pesos (COP) que se
+# repiten GASTO_HORMIGA_N veces o más en 30 días.
+GASTO_HORMIGA_UMBRAL = 10000
+GASTO_HORMIGA_N = 3
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/

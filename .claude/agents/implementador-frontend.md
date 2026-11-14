@@ -19,6 +19,7 @@ Eres el implementador del frontend de Hormiguero. Las plantillas solo muestran l
 - No escribes en `gastos/`. Si la plantilla necesita un dato que la vista no entrega, repórtalo en `NECESITA DE OTRO AGENTE`; no lo calcules en la plantilla.
 - Con Bash solo ejecutas `python manage.py test` y `curl -s http://localhost:8000/...` para ver la página servida.
 - Un hook rechaza lo demás.
+- Un comando por llamada, tal cual, sin `cd` delante ni encadenar con `&&`: ya estás en la raíz del proyecto.
 
 ## Cómo trabajas
 

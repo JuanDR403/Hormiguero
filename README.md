@@ -97,7 +97,17 @@ Cambios hechos al pasar del diseño a los archivos:
 | Skill de diseño en el frontend | El `implementador-frontend` usaba `web-design-guidelines` | Solo la usa el `revisor` | La skill necesita WebFetch para descargar sus reglas y el implementador no tiene esa herramienta. Sus normas de accesibilidad están en `.claude/rules/frontend.md`. |
 | Reglas sin Django | Un paso del CI | La prueba `gastos/tests/test_arquitectura.py` | Como prueba corre también en local, antes del PR. |
 
-Cambios observados al ejecutar las specs: **pendiente**. Se completa con lo que quede anotado en el `evidencia.md` de cada spec.
+Cambios observados al ejecutar las specs:
+
+| Spec | Qué observamos | Qué cambió |
+|---|---|---|
+| 001 | El `probador` no pudo escribir pruebas ni ejecutarlas: lo rechazaba el hook del coordinador. Al abrir la sesión con `claude --agent coordinador`, su hook sigue activo mientras trabajan los subagentes. | El hook lee el campo `agent_type` que envía Claude Code y solo juzga las llamadas del agente al que pertenece. |
+| 001 | El coordinador no pudo actualizar `main` antes de crear la rama. | Se le permiten `git fetch` y `git pull`. Sigue sin poder hacer push. |
+| 001 | El hook rechazó el commit con la línea `Co-Authored-By: ... <correo>`, por los símbolos `<` y `>` y por el salto de línea del mensaje. | El hook ya no revisa esos símbolos dentro del texto entre comillas. Fuera de las comillas siguen prohibidos, igual que `$(` y las comillas invertidas en cualquier parte. |
+| 001 | Los agentes anteponían `cd <carpeta> &&` a los comandos y el hook lo rechazaba por encadenar. | Las instrucciones de cada agente dicen que ejecute un comando por llamada, sin `cd`. |
+| 001 | El `revisor` encontró que el hook se podía saltar con una comilla escapada (`git status \' ; otro comando ; \'`) y que un subagente sin perfil quedaba sin restricciones. | El hook rechaza la barra invertida y las comillas sin cerrar, y un agente sin perfil no puede escribir ni ejecutar. Lo cubren las pruebas de `gastos/tests/test_hook_permisos.py`. |
+
+El detalle está en [specs/001-gasto-hormiga/evidencia.md](specs/001-gasto-hormiga/evidencia.md). Esta tabla se completa con cada spec.
 
 ## Specs
 
