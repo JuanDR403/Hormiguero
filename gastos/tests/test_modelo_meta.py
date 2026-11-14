@@ -56,6 +56,43 @@ class MetaModeloTests(TestCase):
                     fecha_limite=date(2027, 6, 30),
                 )
 
+    def test_base_de_datos_acepta_precio_uno(self):
+        meta = Meta.objects.create(
+            usuario=self.ana,
+            nombre="Llavero",
+            precio=1,
+            fecha_limite=date(2027, 6, 30),
+        )
+        meta.refresh_from_db()
+        self.assertEqual(meta.precio, Decimal("1"))
+
+    def test_str_muestra_nombre_y_precio(self):
+        meta = Meta.objects.create(
+            usuario=self.ana,
+            nombre="Portátil",
+            precio=Decimal("1500000"),
+            fecha_limite=date(2027, 6, 30),
+        )
+        meta.refresh_from_db()
+        self.assertEqual(str(meta), "Portátil · $1500000")
+
+    def test_metas_se_ordenan_por_fecha_limite(self):
+        junio = Meta.objects.create(
+            usuario=self.ana, nombre="Junio", precio=1000, fecha_limite=date(2027, 6, 30)
+        )
+        enero = Meta.objects.create(
+            usuario=self.ana, nombre="Enero", precio=1000, fecha_limite=date(2027, 1, 31)
+        )
+        marzo = Meta.objects.create(
+            usuario=self.ana, nombre="Marzo", precio=1000, fecha_limite=date(2027, 3, 31)
+        )
+        enero_bis = Meta.objects.create(
+            usuario=self.ana, nombre="Enero bis", precio=1000, fecha_limite=date(2027, 1, 31)
+        )
+        self.assertEqual(
+            list(self.ana.metas.all()), [enero, enero_bis, marzo, junio]
+        )
+
     def test_usuario_solo_ve_sus_metas(self):
         de_ana = Meta.objects.create(
             usuario=self.ana, nombre="Portátil", precio=1000, fecha_limite=date(2027, 6, 30)
