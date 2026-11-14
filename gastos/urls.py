@@ -19,4 +19,6 @@ urlpatterns = [
     path("gastos/", views.lista_gastos, name="lista_gastos"),
     path("gastos/<int:pk>/eliminar/", views.eliminar_gasto, name="eliminar_gasto"),
     path("hormiga/", views.hormiga, name="hormiga"),
+    path("metas/", views.lista_metas, name="lista_metas"),
+    path("metas/<int:pk>/eliminar/", views.eliminar_meta, name="eliminar_meta"),
 ]

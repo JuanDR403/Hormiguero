@@ -6,9 +6,21 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_safe
 
-from .forms import FormularioGasto, FormularioRegistro
-from .models import Gasto
+from .forms import FormularioGasto, FormularioMeta, FormularioRegistro
+from .models import Gasto, Meta
 from .reglas.hormiga import VENTANA_DIAS, detectar_gasto_hormiga
+from .reglas.metas import (
+    calcular_cuota_mensual,
+    calcular_falta,
+    estado_meta,
+    meses_restantes,
+)
+
+NOMBRES_ESTADO = {
+    "cumplida": "Cumplida",
+    "vencida": "Vencida",
+    "en_curso": "En curso",
+}
 
 
 def inicio(request):
@@ -56,6 +68,39 @@ def eliminar_gasto(request, pk):
     gasto.delete()
     messages.success(request, "Gasto eliminado.")
     return redirect("lista_gastos")
+
+
+@login_required
+def lista_metas(request):
+    if request.method == "POST":
+        formulario = FormularioMeta(request.POST)
+        if formulario.is_valid():
+            meta = formulario.save(commit=False)
+            meta.usuario = request.user
+            meta.save()
+            messages.success(request, "Meta creada.")
+            return redirect("lista_metas")
+    else:
+        formulario = FormularioMeta()
+
+    hoy = timezone.localdate()
+    metas = list(Meta.objects.filter(usuario=request.user))
+    for meta in metas:
+        meta.cuota = calcular_cuota_mensual(meta.precio, meta.ahorrado, meta.fecha_limite, hoy)
+        meta.falta = calcular_falta(meta.precio, meta.ahorrado)
+        meta.meses = meses_restantes(meta.fecha_limite, hoy)
+        meta.estado = estado_meta(meta.precio, meta.ahorrado, meta.fecha_limite, hoy)
+        meta.estado_nombre = NOMBRES_ESTADO[meta.estado]
+    return render(request, "gastos/metas.html", {"formulario": formulario, "metas": metas})
+
+
+@login_required
+@require_POST
+def eliminar_meta(request, pk):
+    meta = get_object_or_404(Meta, pk=pk, usuario=request.user)
+    meta.delete()
+    messages.success(request, "Meta eliminada.")
+    return redirect("lista_metas")
 
 
 @login_required

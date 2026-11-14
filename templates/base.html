@@ -15,6 +15,7 @@
       <nav aria-label="Principal">
         <a href="{% url 'lista_gastos' %}">Mis gastos</a>
         <a href="{% url 'hormiga' %}">Gasto hormiga</a>
+        <a href="{% url 'lista_metas' %}">Metas de ahorro</a>
       </nav>
       <form method="post" action="{% url 'logout' %}">
         {% csrf_token %}

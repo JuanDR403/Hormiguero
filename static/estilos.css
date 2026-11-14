@@ -40,4 +40,6 @@ caption { text-align: left; padding-bottom: 0.5rem; }
 th, td { padding: 0.5rem; border-bottom: 1px solid #ddd; text-align: left; }
 td { overflow-wrap: anywhere; }
 td form { margin: 0; }
+.estado { font-weight: bold; }
+.estado-vencida { color: #B42318; }
 .numero { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
