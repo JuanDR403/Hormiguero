@@ -1,9 +1,8 @@
-from datetime import timedelta
+from datetime import date, timedelta
 from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
-from django.utils import timezone
 
 from gastos.models import Gasto
 
@@ -14,8 +13,9 @@ AVISO_SIN_GRUPOS = "No se detectaron gastos hormiga en los últimos 30 días."
 
 class VistaHormigaTests(TestCase):
     def setUp(self):
-        # La prueba y la vista comparten el mismo día, aunque corra a medianoche.
-        self.hoy = timezone.localdate()
+        # Fecha fija y alejada de hoy: si la vista no toma el día de
+        # timezone.localdate(), los gastos quedan fuera de la ventana y falla.
+        self.hoy = date(2025, 1, 15)
         parche = mock.patch("gastos.views.timezone.localdate", return_value=self.hoy)
         parche.start()
         self.addCleanup(parche.stop)
