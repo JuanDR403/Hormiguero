@@ -67,6 +67,15 @@ class VistaResumenTests(TestCase):
         self.assertContains(respuesta, "Crear cuenta")
         self.assertNotContains(respuesta, "Resumen")
 
+    def test_sin_sesion_muestra_h1_hormiguero_y_descripcion(self):
+        html = self.client.get(URL_INICIO).content.decode()
+        self.assertIn("<h1>Hormiguero</h1>", html)
+        self.assertIn("Gestor de gastos personales con metas de ahorro.", html)
+
+    def test_sin_sesion_el_titulo_de_la_pestana_es_inicio(self):
+        respuesta = self.client.get(URL_INICIO)
+        self.assertContains(respuesta, "<title>Inicio · Hormiguero</title>", html=False)
+
     def test_sin_sesion_el_contexto_no_trae_total_mes(self):
         respuesta = self.client.get(URL_INICIO)
         self.assertNotIn("total_mes", respuesta.context)
@@ -81,6 +90,10 @@ class VistaResumenTests(TestCase):
         self.assertRegex(respuesta.content.decode(), r"<h1[^>]*>\s*Resumen\s*</h1>")
         self.assertContains(respuesta, "Hola, Ana.")
 
+    def test_con_sesion_el_titulo_de_la_pestana_es_resumen(self):
+        respuesta = self.ver_como_ana()
+        self.assertContains(respuesta, "<title>Resumen · Hormiguero</title>", html=False)
+
     # CA11
 
     def test_total_del_mes_en_contexto_y_en_la_pagina(self):
@@ -88,7 +101,7 @@ class VistaResumenTests(TestCase):
         respuesta = self.ver_como_ana()
         self.assertEqual(respuesta.context["total_mes"], 25000)
         self.assertContains(respuesta, "$25.000")
-        self.assertIn("noviembre de 2026", respuesta.content.decode().lower())
+        self.assertIn("noviembre de 2026", respuesta.content.decode())
 
     def test_el_contexto_trae_hoy_y_dias(self):
         respuesta = self.ver_como_ana()
@@ -128,10 +141,25 @@ class VistaResumenTests(TestCase):
     def test_la_pagina_muestra_categorias_en_orden_y_sin_salud(self):
         self.gastos_ca5(self.ana)
         html = self.ver_como_ana().content.decode()
-        for texto in ("Transporte", "Alimentación", "$15.000", "$10.000", "$2.000"):
+        for texto in ("Transporte", "Alimentación", "Hogar", "$15.000", "$10.000", "$2.000"):
             self.assertIn(texto, html)
         self.assertLess(html.index("Transporte"), html.index("Alimentación"))
+        self.assertLess(html.index("Alimentación"), html.index("Hogar"))
         self.assertNotIn("Salud", html)
+
+    def test_cada_monto_va_en_la_fila_de_su_categoria(self):
+        self.gastos_ca5(self.ana)
+        html = self.ver_como_ana().content.decode()
+        for nombre, monto in (
+            ("Transporte", r"\$15\.000"),
+            ("Alimentación", r"\$10\.000"),
+            ("Hogar", r"\$2\.000"),
+        ):
+            with self.subTest(categoria=nombre):
+                self.assertRegex(
+                    html,
+                    rf"<td>\s*{nombre}\s*</td>\s*<td[^>]*>\s*{monto}\s*</td>",
+                )
 
     # CA14
 
@@ -140,6 +168,7 @@ class VistaResumenTests(TestCase):
         respuesta = self.ver_como_ana()
         self.assertEqual(respuesta.status_code, 200)
         self.assertEqual(respuesta.context["por_categoria"][0]["categoria_nombre"], "antigua")
+        self.assertRegex(respuesta.content.decode(), r"<td>\s*antigua\s*</td>")
 
     # CA15
 
