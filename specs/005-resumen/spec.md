@@ -74,3 +74,8 @@ Propuestas por el coordinador y aprobadas por el desarrollador junto con la spec
 - El aviso usa la ventana de 30 días de la regla de gasto hormiga, no el mes calendario, para que coincida con `/hormiga/`.
 - Se mantiene el saludo «Hola, {nombre}.» bajo el `<h1>` «Resumen»; el enlace «Ver mis gastos» se quita porque ya está en el encabezado.
 - El nombre del mes sale del filtro `date` de Django en español (`LANGUAGE_CODE = "es-co"`); la vista pasa `hoy` y la plantilla solo lo formatea.
+
+Respondidas por el desarrollador el 2026-11-14, después de la revisión:
+- El aviso de gasto hormiga se destaca visualmente con una regla `.aviso-hormiga` en `static/estilos.css`.
+- `gastos/tests/test_inicio.py` se deja sin tocar, aunque `test_con_sesion_enlaza_a_gastos` ahora pasa gracias al enlace del encabezado.
+- Se acepta que la vista cargue los gastos del usuario y la regla filtre el mes en Python; no se filtra por fecha en la consulta.
