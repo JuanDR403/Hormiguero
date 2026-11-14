@@ -13,6 +13,18 @@ def calcular_cuota_mensual(precio, ahorrado, fecha_limite, hoy):
     return -(-falta // meses)
 
 
+def calcular_falta(precio, ahorrado):
+    return max(0, int(precio) - int(ahorrado))
+
+
+def estado_meta(precio, ahorrado, fecha_limite, hoy):
+    if int(ahorrado) >= int(precio):
+        return "cumplida"
+    if fecha_limite < hoy:
+        return "vencida"
+    return "en_curso"
+
+
 def validar_meta(nombre, precio, ahorrado, fecha_limite, hoy):
     errores = {}
     if nombre is None or not nombre.strip():

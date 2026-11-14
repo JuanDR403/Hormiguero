@@ -5,8 +5,9 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from .models import Gasto
+from .models import Gasto, Meta
 from .reglas.gastos import validar_gasto
+from .reglas.metas import validar_meta
 from .reglas.usuarios import normalizar_correo
 
 Usuario = get_user_model()
@@ -115,6 +116,45 @@ class FormularioGasto(forms.ModelForm):
         errores = validar_gasto(datos.get("monto"), datos.get("fecha"), self.hoy)
         for campo, mensaje in errores.items():
             # Si el campo ya falló (vacío, con centavos...), no se repite el error.
+            if campo not in self.errors:
+                self.add_error(campo, mensaje)
+        return datos
+
+
+class FormularioMeta(forms.ModelForm):
+    class Meta:
+        model = Meta
+        fields = ["nombre", "precio", "ahorrado", "fecha_limite"]
+        labels = {
+            "nombre": "Nombre",
+            "precio": "Precio",
+            "ahorrado": "Ahorrado",
+            "fecha_limite": "Fecha límite",
+        }
+        widgets = {"fecha_limite": forms.DateInput(attrs={"type": "date"})}
+        error_messages = {
+            "precio": {"max_decimal_places": "El precio debe ser en pesos enteros, sin centavos."},
+            "ahorrado": {
+                "max_decimal_places": "Lo ahorrado debe ser en pesos enteros, sin centavos."
+            },
+        }
+
+    def __init__(self, *args, hoy=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.hoy = hoy or timezone.localdate()
+        self.fields["ahorrado"].required = True
+        self.fields["ahorrado"].initial = 0
+
+    def clean(self):
+        datos = super().clean()
+        errores = validar_meta(
+            datos.get("nombre"),
+            datos.get("precio"),
+            datos.get("ahorrado"),
+            datos.get("fecha_limite"),
+            self.hoy,
+        )
+        for campo, mensaje in errores.items():
             if campo not in self.errors:
                 self.add_error(campo, mensaje)
         return datos
