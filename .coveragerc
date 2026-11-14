@@ -1,0 +1,9 @@
+[run]
+source = gastos
+omit =
+    gastos/migrations/*
+    gastos/tests/*
+
+[report]
+fail_under = 80
+show_missing = True

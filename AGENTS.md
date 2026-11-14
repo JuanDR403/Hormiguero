@@ -13,9 +13,14 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
 python manage.py test
+coverage run manage.py test && coverage report    # cobertura de gastos/, mínimo 80 %
 ```
 
 Al agregar una dependencia: `pip freeze > requirements.txt`.
+
+## Cómo se trabaja una funcionalidad
+
+Cada funcionalidad es una spec en `specs/NNN-tema/` (`spec.md`, `plan.md`, `tareas.md`, `evidencia.md`), con una rama y un pull request. El procedimiento está en la skill `sdd-hormiguero`. Se abre con `claude --agent coordinador`, que delega en `probador`, `implementador-backend`, `implementador-frontend` y `revisor` (`.claude/agents/`). Las pruebas se escriben antes que el código. El arnés completo se explica en el README.
 
 ## Organización del código
 
@@ -25,6 +30,9 @@ Al agregar una dependencia: `pip freeze > requirements.txt`.
   - `reglas/`: reglas de negocio como funciones puras de Python (sin importar Django).
   - `tests/`: pruebas.
 - `templates/` y `static/`: frontend. `templates/autenticacion/` y `static/autenticacion.css` son las pantallas de acceso; `static/hormigas.js` es una animación decorativa con botón de pausa.
+- `specs/`: una carpeta por funcionalidad, con su especificación, plan, tareas y evidencia.
+- `.claude/`: agentes (`agents/`), normas por tipo de archivo (`rules/`), skills (`skills/`) y el hook de permisos (`hooks/`).
+- `.github/workflows/ci.yml`: pruebas y cobertura en cada pull request.
 
 **Dependencias:** las vistas llaman a `reglas/`; `reglas/` no importa Django ni las vistas; las plantillas solo muestran datos.
 
