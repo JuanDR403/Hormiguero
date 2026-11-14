@@ -68,8 +68,12 @@ def hormiga(request):
         settings.GASTO_HORMIGA_N,
         timezone.localdate(),
     )
+    nombres_categoria = dict(Gasto.Categoria.choices)
     for grupo in grupos:
-        grupo["categoria_nombre"] = Gasto.Categoria(grupo["categoria"]).label
+        # Si el código no está entre las opciones, se muestra tal cual.
+        grupo["categoria_nombre"] = nombres_categoria.get(
+            grupo["categoria"], grupo["categoria"]
+        )
     contexto = {
         "grupos": grupos,
         "umbral": settings.GASTO_HORMIGA_UMBRAL,
