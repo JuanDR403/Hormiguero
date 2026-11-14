@@ -89,3 +89,7 @@ Propuestas por el coordinador y aprobadas por el desarrollador junto con la spec
 - El formulario aplica el límite de 100 caracteres del nombre (decisión de la spec 003) y rechaza centavos con mensaje propio.
 - Mensajes «Meta creada.» y «Meta eliminada.»; texto del enlace «Metas de ahorro».
 - Estado intermedio tras el backend: las pruebas que renderizan la plantilla fallan con `TemplateDoesNotExist` hasta que el frontend la crea.
+
+Respondidas por el desarrollador el 2026-11-14, después de la revisión:
+- «Eliminar» borra sin confirmación ni deshacer, igual que en `/gastos/`.
+- `autocomplete="off"` en los formularios del dominio queda para una spec aparte que trate gastos y metas a la vez.
