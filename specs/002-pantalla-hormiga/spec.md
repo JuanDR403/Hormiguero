@@ -38,10 +38,11 @@ Salvo que se diga otra cosa: usuarios `ana@ejemplo.com` y `beto@ejemplo.com`, um
 - CA8. La vista usa la fecha de hoy: con 3 gastos, uno de ellos de `hoy − 30`, se forma el grupo; si ese es de `hoy − 31`, no se forma. Un gasto con fecha `hoy` cuenta.
 - CA9. Con dos grupos (uno de 4 compras y otro de 3), `grupos` y las filas de la tabla salen en el orden de la regla: primero el de 4.
 - CA10. Un grupo sin descripción se muestra como «Sin descripción».
-- CA11. La página muestra el criterio con los valores de la configuración: con los valores por defecto contiene «$10.000», «3 o más veces» y «30 días»; con `override_settings(GASTO_HORMIGA_UMBRAL=5000, GASTO_HORMIGA_N=4)` contiene «$5.000» y «4 o más veces». El contexto trae `umbral`, `n` y `dias`.
+- CA11. La página muestra el criterio con los valores de la configuración: con los valores por defecto contiene la frase «Compras de hasta $10.000 que se repiten 3 o más veces en los últimos 30 días.»; con `override_settings(GASTO_HORMIGA_UMBRAL=5000, GASTO_HORMIGA_N=4)`, «Compras de hasta $5.000 que se repiten 4 o más veces en los últimos 30 días.». El contexto trae `umbral`, `n` y `dias`. *(Texto alineado con la prueba tras la revisión, hallazgo 2.)*
 - CA12. Con sesión, el encabezado de cualquier página que hereda de `base.html` (p. ej. `/gastos/`) tiene un enlace a `/hormiga/` con el texto «Gasto hormiga»; sin sesión no aparece.
 - CA13. La tabla tiene encabezados `<th scope="col">` y la página un solo `<h1>`.
 - CA14. `/hormiga/` solo acepta lectura: `HEAD` responde 200 y un `POST` responde 405 sin crear ni borrar gastos.
+- CA15. Si un grupo tiene una categoría que no está entre las opciones de `Gasto.Categoria` (dato antiguo o cargado fuera del formulario), la página responde 200 y `categoria_nombre` es el código tal cual. *(Añadido tras la revisión, hallazgo 3.)*
 
 ## Decisiones tomadas
 Respondidas por el desarrollador el 2026-11-14:

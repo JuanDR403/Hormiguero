@@ -52,6 +52,9 @@ Archivo `gastos/tests/test_vista_hormiga.py`, con `TestCase`. Usuarios `ana@ejem
 | `test_tabla_accesible_y_un_solo_h1` | CA13 | `<th scope="col">` y un `<h1>` |
 | `test_head_esta_permitido` | CA14 | `HEAD` con sesión responde 200 |
 | `test_post_no_esta_permitido` | CA14 | 405 y gastos intactos |
+| `test_categoria_desconocida_muestra_el_codigo` | CA15 (revisión, hallazgo 3) | 200 y `categoria_nombre` igual al código |
+
+Ajustes tras la revisión: las pruebas de CA8 fijan el día con `mock.patch("gastos.views.timezone.localdate")` (hallazgo 1), y la de CA11 comprueba la frase completa del criterio (hallazgo 2). En la vista, `categoria_nombre` sale de `dict(Gasto.Categoria.choices).get(codigo, codigo)`.
 
 ## Verificación
 ```bash
